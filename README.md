@@ -1,6 +1,8 @@
 # time-stamp
 Python module to write and check a time stamp
 
+This is just an example of how to use tinydb. However, for such an easy task I would rather use pickle without a databse.
+
 Import the module like this:
 
 import t_stamp
