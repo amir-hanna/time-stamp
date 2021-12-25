@@ -1,7 +1,4 @@
 from tinydb import TinyDB, Query
-from tinydb.storages import JSONStorage
-from tinydb.middlewares import CachingMiddleware
-
 import time
 import os
 
@@ -16,10 +13,9 @@ def GetAbsScriptPath():
     
 def get_db():
     strDatabasePath = GetAbsScriptPath()[1] + '.json'
-    # using read and write cache to reduce i/o. later must use With to close db and commit changes
-    db = TinyDB(strDatabasePath, storage=CachingMiddleware(JSONStorage))
+    db = TinyDB(strDatabasePath)
     return db
-        
+
         
 def get_ts():
     with get_db() as db:
@@ -29,14 +25,15 @@ def get_ts():
         if len(lst_result) == 0:
             return 0
         
-        return lst_result[0]["stamp"]
+        return lst_result[0]['stamp']
     
 
 def write_ts():
     ts = time.time()
     with get_db() as db:
-        db.truncate()
-        db.insert({'stamp': ts})
+        q = Query()
+        # update stamp if it exists otherwise insert it
+        db.upsert({'stamp': ts}, q.stamp >= 0)
 
 
 def too_recent(span_seconds):
@@ -44,7 +41,3 @@ def too_recent(span_seconds):
         return False
     return True
     
-
-#print(get_ts())
-#write_ts()
-#print(get_ts())
